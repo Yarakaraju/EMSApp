@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>White Board</title>
+
+        <style type="text/css">
+            div#map_container{
+                width:70%;
+                height:150px;
+                size: auto
+            }
+        </style>
+
+        <link rel="stylesheet" type="text/css" th:href="@{/css/registration.css}" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <!--script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script-->
+        <script async="defer"
+                src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyDqqBHsIHDsdQbkGI7SiXC-YXyevoGCgCE&callback=initialize">
+        </script>
+        <script type="text/javascript">
+
+            function moveMarker(placeName, latlng) {
+                marker.setIcon(image);
+                marker.setPosition(latlng);
+                infowindow.setContent(placeName);
+                //infowindow.open(map, marker);
+            }
+            window.onload = function () {
+                var latitude, longitude;
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (p) {
+                        var LatLng = new google.maps.LatLng(p.coords.latitude, p.coords.longitude);
+                        latitude = p.coords.latitude;
+                        longitude = p.coords.longitude;
+
+                        //alert("first onload lat an lang are " + latitude + "  : " + longitude);
+
+                        image = 'http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png';
+                        var mapOptions = {
+                            center: LatLng,
+                            zoom: 13,
+                            mapTypeId: google.maps.MapTypeId.ROADMAP,
+                            panControl: true,
+                            panControlOptions: {
+                                position: google.maps.ControlPosition.TOP_RIGHT
+                            },
+                            zoomControl: true,
+                            zoomControlOptions: {
+                                style: google.maps.ZoomControlStyle.LARGE,
+                                position: google.maps.ControlPosition.TOP_left
+                            }
+                        };
+                        var map = new google.maps.Map(document.getElementById("map_container"), mapOptions);
+                        var marker = new google.maps.Marker({
+                            position: LatLng,
+                            map: map,
+                            icon: image
+                        });
+
+                        google.maps.event.addListener(map, 'click', function (e) {
+                            marker.setIcon(image);
+                            marker.setPosition(e.latLng);
+                            //marker.title(e.latLng.lat() + " " + e.latLng.lng()); 
+                            var infoWindow = new google.maps.InfoWindow();
+                            infoWindow.setContent(e.latLng.lat() + " " + e.latLng.lng());
+                            infoWindow.open(map, marker);
+                            latitude = e.latLng.lat();
+                            longitude = e.latLng.lng();
+                           // alert("At marker chaange lat an lang are " + latitude + "  : " + longitude);
+                            document.getElementById('latitude').value = latitude;
+                            document.getElementById('longitude').value = longitude;
+                            document.getElementById('latitudefornotice').value = latitude;
+                            document.getElementById('longitudefornotice').value = longitude;
+
+                            LatLng = new google.maps.LatLng(e.latLng.lat(), e.latLng.lng());
+                            var geocoder = geocoder = new google.maps.Geocoder();
+                            geocoder.geocode({'latLng': LatLng}, function (results, status) {
+                                if (status == google.maps.GeocoderStatus.OK) {
+                                    if (results[1]) {
+                                        //alert("Location: " + results[1].formatted_address);
+                                        document.getElementById('pac-input').value = results[1].formatted_address
+                                    }
+                                    ;
+                                }
+                            });
+                        });
+
+                    });
+                } else {
+                    var address = (document.getElementById('pac-input'));
+                    var autocomplete = new google.maps.places.Autocomplete(address);
+                    autocomplete.setTypes(['geocode']);
+                    var lat, long;
+                    google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                        var place = autocomplete.getPlace();
+                        if (!place.geometry) {
+                            return;
+                        }
+
+                        var address = '';
+                        if (place.address_components) {
+                            address = [
+                                (place.address_components[0] && place.address_components[0].short_name || ''),
+                                (place.address_components[1] && place.address_components[1].short_name || ''),
+                                (place.address_components[2] && place.address_components[2].short_name || '')
+                            ].join(' ');
+                        }
+                        /*********************************************************************/
+                        /* var address contain your autocomplete address *********************/
+                        /* place.geometry.location.lat() && place.geometry.location.lat() ****/
+                        /* will be used for current address latitude and longitude************/
+                        /*********************************************************************/
+                        //document.getElementById('lat').innerHTML = place.geometry.location.lat();
+                        //document.getElementById('long').innerHTML = place.geometry.location.lng();
+                        lat = place.geometry.location.lat();
+                        long = place.geometry.location.lng();
+                    });
+                    var mapOptions = {
+                        center: new google.maps.LatLng(lat, long),
+                        zoom: 14,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP
+                    };
+                    var infoWindow = new google.maps.InfoWindow();
+                    var latlngbounds = new google.maps.LatLngBounds();
+                    var map = new google.maps.Map(document.getElementById("map_container"), mapOptions);
+                    google.maps.event.addListener(map, 'click', function (e) {
+                        //alert("Latitude: " + e.latLng.lat() + "\r\nLongitude: " + e.latLng.lng());
+                        document.getElementById('latitude').value = e.latLng.lat();
+                        document.getElementById('longitude').value = e.latLng.lng();
+                    });
+                }
+            }
+
+
+
+        </script>
+    </head>
+    <body>
+
+        <form th:action="@{/logout}" method="get">
+            <button class="btn btn-md btn-warning btn-block" type="Submit">Logout</button>
+        </form>
+
+        <th:block layout:fragment="content">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <form autocomplete="on" action="#" th:action="@{/myWhiteBoard}"
+                              th:object="${whiteBoard}" method="post" class="form-horizontal"
+                              role="form">
+                            <h2>New White Board Item Registration Form</h2>
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <label th:if="${#fields.hasErrors('itemTitle')}" th:errors="*{itemTitle}"
+                                           class="validation-message"></label>
+                                    <input type="text" th:field="*{itemTitle}" placeholder="Add new Item"
+                                           class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <label	th:if="${#fields.hasErrors('itemDescription')}" th:errors="*{itemDescription}"
+                                           class="validation-message"></label>
+                                    <input type="text" th:field="*{itemDescription}" placeholder="Description" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="number" th:field="*{maxPratispents}" placeholder="Number Of Guests Allowed"
+                                           class="form-control" /> <label
+                                           th:if="${#fields.hasErrors('maxPratispents')}" th:errors="*{maxPratispents}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="tel" th:field="*{mobile}" maxlength="10" placeholder="Contact Number" class="form-control" /> 
+                                    <label th:if="${#fields.hasErrors('mobile')}" th:errors="*{mobile}" class="validation-message"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div id="map_container"></div>
+                                <div class="col-sm-9">
+                                    <input id="pac-input" th:field="*{location}" type="text" style="display: none"
+                                           placeholder="Location selected"  />
+                                    <label
+                                        th:if="${#fields.hasErrors('location')}" th:errors="*{location}"
+                                        class="validation-message"></label>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="text" th:field="*{latitude}" placeholder="Latitude" style="display: none"
+                                           class="form-control"  /> <label
+                                           th:if="${#fields.hasErrors('latitude')}" th:errors="*{latitude}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="text" th:field="*{longitude}" placeholder="Longitude" style="display: none"
+                                           class="form-control"  /> <label
+                                           th:if="${#fields.hasErrors('longitude')}" th:errors="*{longitude}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <button type="submit" class="btn btn-primary btn-block" value="Create Item" style="color: darkmagenta">Create Item</button>
+                                </div>
+                            </div>
+
+                            <span th:utext="${successMessage}"></span>
+
+
+                        </form>
+                    </div>
+                </div>
+                <!-- Add list of events -->
+                <div class="col-md-8 col-sm-8">
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading">My White Board Notices</div>
+                        <div class="panel-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Item Description</th>
+                                        <th>Max Number</th>
+                                        <th>Total Enrolled</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item : ${whiteBoardNotices}">
+                                        <form action="#" th:action="@{'/whiteBoard/delete/' + ${item.getId()}}"
+                                              th:object="${item.getId()}" method="post" class="form-horizontal"
+                                              role="form">
+                                            <td >  <a th:text="${item.getId()}" th:field="*{itemId}" th:href="*{data.path}" th:onclick="'loadContent('+ ${item.getId()} +')'"></a></td>
+                                            <td th:text="${item.getItemTitle()}" >Item Name</td>
+                                            <td th:text="${item.getItemDescription()}">Item Description</td>
+                                            <td th:text="${item.getMaxPratispents()}">Maximum number</td>
+                                            <td th:text="${item.getTotalEnrolled()}">Total Enrolled</td>
+                                            <td><input type="submit" name="delete" value="Delete Notice" style="border-color: #FF1C19; color: chartreuse"></td>
+                                        </form>
+                                    </tr>
+                                </tbody>
+                                <span th:utext="${deleteMessage}"></span>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-md-8 col-sm-8">
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading">Go To Notices around my current location</div>
+                        <div class="panel-body">
+                            <form action="#" th:action="@{/notices}" method="post" th:object="${notices}"
+                                  method="post" class="form-horizontal"
+                                  role="form">
+                                <input type="text" id="latitudefornotice" value=""  th:field="*{latitudefornotice}" placeholder="latitudefornotice"
+                                       class="form-control" />
+                                <input type="text" id="longitudefornotice" value=""  th:field="*{longitudefornotice}" placeholder="longitudefornotice"
+                                       class="form-control" />
+                                Select Radius to get near by events<input type="number" id="maxRadius" th:field="*{maxRadius}" placeholder="Select Radius to get Events"
+                                                                          class="form-control" /> <label
+                                                                          th:if="${#fields.hasErrors('maxRadius')}" th:errors="*{maxRadius}"
+                                                                          class="validation-message"></label> 
+                                <button class="btn btn-md btn-warning btn-block" type="Submit" >Click Here To Open Notices Around</button> 
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Notice Board</title>
+
+        <link rel="stylesheet" type="text/css" th:href="@{/css/registration.css}" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    </head>
+    <body>
+
+        <form th:action="@{/myWhiteBoard}" method="get">
+            <button class="btn btn-md btn-warning btn-block" type="Submit">Go To White Board</button>
+        </form>
+
+        <th:block layout:fragment="content">
+            <div class="col-md-8 col-sm-8">
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">Notices around current location</div>
+                    <div class="panel-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Item Description</th>
+                                    <th>Max Number</th>
+                                    <th>Total Enrolled</th>
+                                    <th>Enroll</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${noticesNearByLocation}">
+                                    <form action="#" th:action="@{'/enroleNotices/enrole/' + ${item.getId()}}"
+                                          th:object="${item.getId()}" method="post" class="form-horizontal"
+                                          role="form">
+                                        <td th:text="${item.getItemTitle()}">Item Name</td>
+                                        <td th:text="${item.getItemDescription()}">Item Description</td>                                            
+                                        <td th:text="${item.getMaxPratispents()}">Maximum Allowed</td>
+                                        <td th:text="${item.getTotalEnrolled()}">Total Enrolled</td>
+                                        <td><input type="submit" name="enroll" value="Join" ></td>
+                                    </form>
+                                    <form action="#" th:action="@{'/enroleNotices/privateMessage/' + ${item.getId()}}"
+                                          th:object="${item.getId()}" method="post" class="form-horizontal" role="form">
+                                        <input type="submit" name="privateMessage" value="Private Message" >
+                                    </form>
+                                </tr>
+                            </tbody>
+                            <span th:utext="${enroleMessage}"></span>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">Notices that already Enrolled</div>
+                    <div class="panel-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Item Description</th>
+                                    <th>Enrolled</th>
+                                    <th>Send Group Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${noticesAlreadyEnrolled}">
+                                    <form action="#" th:action="@{'/enroleNotices/enrole/' + ${item.getId()}}"
+                                          th:object="${item.getId()}" method="post" class="form-horizontal"
+                                          role="form">
+                                        <td th:text="${item.getItemTitle()}">Item Name</td>
+                                        <td th:text="${item.getItemDescription()}">Item Description</td> 
+                                        <td th:text="${item.isEnrolled()}"> Enrolled</td>
+                                        <input type="submit" name="groupMessage" value="Group Message" >
+                                    </form>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            </div>
+        </th:block>
+    </body>
+</html>

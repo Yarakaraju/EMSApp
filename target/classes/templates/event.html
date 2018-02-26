@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Event Registration Form</title>
+        <link rel="stylesheet" type="text/css" th:href="@{/css/registration.css}" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+        <script>
+            function initialize() {
+                var address = (document.getElementById('pac-input'));
+                var autocomplete = new google.maps.places.Autocomplete(address);
+                autocomplete.setTypes(['geocode']);
+                google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                    var place = autocomplete.getPlace();
+                    if (!place.geometry) {
+                        return;
+                    }
+
+                    var address = '';
+                    if (place.address_components) {
+                        address = [
+                            (place.address_components[0] && place.address_components[0].short_name || ''),
+                            (place.address_components[1] && place.address_components[1].short_name || ''),
+                            (place.address_components[2] && place.address_components[2].short_name || '')
+                        ].join(' ');
+                    }
+                    /*********************************************************************/
+                    /* var address contain your autocomplete address *********************/
+                    /* place.geometry.location.lat() && place.geometry.location.lat() ****/
+                    /* will be used for current address latitude and longitude************/
+                    /*********************************************************************/
+                    //document.getElementById('lat').innerHTML = place.geometry.location.lat();
+                    //document.getElementById('long').innerHTML = place.geometry.location.lng();
+                    document.getElementById('latitude').value = place.geometry.location.lat();
+                    document.getElementById('longitude').value = place.geometry.location.lng();
+                });
+            }
+
+            google.maps.event.addDomListener(window, 'load', initialize);
+
+        </script>
+    </head>
+    <body>
+
+
+        <!--script type="text/javascript" >
+
+            window.onload = getLocation;
+
+            var geo = navigator.geolocation;     /*     Here we will check if the browser supports the Geolocation API; if exists, then we will display the location     */
+
+            function getLocation() {
+            if( geo ) {
+            geo.getCurrentPosition( displayLocation );
+            }
+            else  { alert( "Oops, Geolocation API is not supported");
+            }
+            }
+
+            /*     This function displays the latitude and longitude when the browser has a location.     */
+
+            function displayLocation( position ) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            document.getElementById( 'latitude' ).value=position.coords.latitude;
+            document.getElementById( 'longitude' ).value=position.coords.longitude;
+            //var div = document.getElementById( 'location' );
+            // div.innerHTML = "You are at Latitude: " + latitude + ", Longitude: " + longitude;
+            }
+
+            function printEventNo(){
+            alert (document.getElementById( 'eventNo' ).value);
+            }
+        </script-->
+
+        <form th:action="@{/logout}" method="get">
+            <button class="btn btn-md btn-warning btn-block" type="Submit">Logout</button>
+        </form>
+        <th:block layout:fragment="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <form autocomplete="on" action="#" th:action="@{/event}"
+                              th:object="${event}" method="post" class="form-horizontal"
+                              role="form">
+                            <h2>Event Registration Form</h2>
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <label th:if="${#fields.hasErrors('eventName')}" th:errors="*{eventName}"
+                                           class="validation-message"></label>
+                                    <!--<input type="text" th:field="*{eventName}" placeholder="Event Name"
+                                           class="form-control" />-->
+                                    <select th:field="*{eventName}"> 
+                                        <option th:each="event : ${eventsList}"
+                                                th:value="${event.getId()}"
+                                                th:utext="${event.getEventName()} + ' for ' +${event.getEventCategory()}"/>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <label	th:if="${#fields.hasErrors('coHostName')}" th:errors="*{coHostName}"
+                                           class="validation-message"></label>
+                                    <input type="text" th:field="*{coHostName}"
+                                           placeholder="CoHost Name" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="email" th:field="*{coHostEmail}" placeholder="CoHost Email"
+                                           class="form-control" /> <label
+                                           th:if="${#fields.hasErrors('coHostEmail')}" th:errors="*{coHostEmail}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="text" th:field="*{guestsEmails}" placeholder="Guests Email's (comma separated. Max 2000 chars) "
+                                           class="form-control" /> <label
+                                           th:if="${#fields.hasErrors('guestsEmails')}" th:errors="*{guestsEmails}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="datetime" th:field="*{dateOfEvent}" placeholder="Date Of Event (Format as shown here dd.MM.yyyy h:mm Ex. 31.01.2018 16:30)"
+                                           class="form-control" />
+                                    <label th:if="${#fields.hasErrors('dateOfEvent')}" th:errors="*{dateOfEvent}"
+                                           class="validation-message"></label>
+
+                                    <!-- <input type="time" th:field="*{timeOfEvent}" placeholder="Time"
+                                            class="form-control" />
+                                     <label th:if="${#fields.hasErrors('timeOfEvent')}" th:errors="*{timeOfEvent}"
+                                            class="validation-message"></label>-->
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="tel" th:field="*{mobile}" maxlength="10"
+                                           placeholder="Contact Number" class="form-control" /> <label
+                                           th:if="${#fields.hasErrors('mobile')}" th:errors="*{mobile}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input id="pac-input" th:field="*{location}" type="text"
+                                           placeholder="Enter a location , and below lattitude and longitude will be automatically filled"/>
+                                    <label
+                                           th:if="${#fields.hasErrors('location')}" th:errors="*{location}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="text" th:field="*{latitude}" placeholder="Latitude"
+                                           class="form-control" /> <label
+                                           th:if="${#fields.hasErrors('latitude')}" th:errors="*{latitude}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="text" th:field="*{longitude}" placeholder="Longitude"
+                                           class="form-control" /> <label
+                                           th:if="${#fields.hasErrors('longitude')}" th:errors="*{longitude}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <button type="submit" class="btn btn-primary btn-block" >Register Event & send email to all</button>
+                                </div>
+                            </div>
+
+                            <span th:utext="${successMessage}"></span>
+
+
+                        </form>
+                    </div>
+                </div>
+                <!-- Add list of events -->
+                <div class="col-md-8 col-sm-8">
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading">Registered Events</div>
+                        <div class="panel-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th>Date of Event</th>
+                                        <th>Co Host</th>
+                                        <th>Guests Email's</th>
+                                        <th>Location</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="event : ${events}">
+                                        <form action="#" th:action="@{'/event/delete/' + ${event.getEventNo()}}"
+                                              th:object="${event.getEventNo()}" method="post" class="form-horizontal"
+                                              role="form">
+                                            <td th:field="*{eventName}" th:text="${event.getEventName()}">Event Name</td>
+                                            <td th:field="*{eventDate}" th:text="${event.getDateOfEvent()}">Date of Event</td>
+                                            <td th:field="*{eventCoHost}" th:text="${event.getCoHostName()}">Co Host</td>
+                                            <td th:field="*{eventGuests}" th:text="${event.getGuestsEmails()}">Guest Email</td>
+                                            <td th:field="*{eventLocation}" th:text="${event.getLocation()}">Guest Email</td>
+                                            <td><input type="submit" name="delete">Delete</td>
+                                        </form>
+                                    </tr>
+                                </tbody>
+                                <span th:utext="${deleteMessage}"></span>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>

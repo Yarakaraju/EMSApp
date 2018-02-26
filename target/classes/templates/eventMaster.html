@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Create a new Event type</title>
+        <link rel="stylesheet" type="text/css" th:href="@{/css/registration.css}" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+
+        <form th:action="@{/event}" method="get">
+            <button class="btn btn-md btn-warning btn-block" type="Submit">Go To Event Registration Page</button>
+        </form>
+        <form th:action="@{/logout}" method="get">
+            <button class="btn btn-md btn-warning btn-block" type="Submit">Logout</button>
+        </form>
+        <th:block layout:fragment="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <form autocomplete="on" action="#" th:action="@{/eventMaster}"
+                              th:object="${eventMaster}" method="post" class="form-horizontal"
+                              role="form">
+                            <h2>Add New Event</h2>
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <label th:if="${#fields.hasErrors('eventName')}" th:errors="*{eventName}"
+                                           class="validation-message"></label>
+                                    <input type="text" th:field="*{eventName}" placeholder="Event Name"
+                                           class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <label	th:if="${#fields.hasErrors('eventDescription')}" th:errors="*{eventDescription}"
+                                           class="validation-message"></label>
+                                    <input type="text" th:field="*{eventDescription}"
+                                           placeholder="Event Descrioption" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <input type="text" th:field="*{eventCategory}" placeholder="Event Category"
+                                           class="form-control" /> <label
+                                           th:if="${#fields.hasErrors('eventCategory')}" th:errors="*{eventCategory}"
+                                           class="validation-message"></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <button type="submit" class="btn btn-primary btn-block" >Register a new Event</button>
+                                </div>
+                            </div>
+
+                            <span th:utext="${successMessage}"></span>
+
+
+                        </form>
+                    </div>
+                </div>
+                <!-- Add list of events -->
+                <div class="col-md-8 col-sm-8">
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading">List of Events</div>
+                        <div class="panel-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Event Name</th>
+                                        <th>Event Description</th>
+                                        <th>Event Category</th>
+                                        <th>Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="event : ${eventsMaster}">
+                                        <form action="#" th:action="@{'/eventMaster/delete/' + ${event.getId()}}"
+                                              th:object="${event.getId()}" method="post" class="form-horizontal"
+                                              role="form">
+                                            <td th:field="*{eventName}" th:text="${event.getEventName()}">Event Name</td>
+                                            <td th:field="*{eventDescription}" th:text="${event.getEventDescription()}">Event Description</td>
+                                            <td th:field="*{eventCatageory}" th:text="${event.getEventCategory()}">Event Category</td>
+                                            <td><input type="submit" name="delete">Delete</td>
+                                        </form>
+                                    </tr>
+                                </tbody>
+                                <span th:utext="${deleteMessage}"></span>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>
